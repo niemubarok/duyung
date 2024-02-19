@@ -1,0 +1,92 @@
+// app global css in SCSS form
+* {
+  font-display: block;
+}
+
+.non-selectable {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.473);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 10px;
+}
+.glass-light {
+  background: rgba(209, 209, 209, 0.836);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 10px;
+}
+
+.rounded-10 {
+  border-radius: 10px;
+}
+.rounded-20 {
+  border-radius: 20px;
+}
+
+.card-gradient {
+  background-image: radial-gradient(
+      at 2% 35%,
+      hsla(145, 62%, 66%, 1) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 2% 78%, hsla(18, 100%, 82%, 1) 0px, transparent 50%),
+    radial-gradient(at 94% 33%, hsla(243, 86%, 79%, 1) 0px, transparent 50%);
+}
+
+.hover:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(207, 204, 204, 0.3);
+  background: #666;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4931a;
+}
+
+.my-sticky-header-table {
+  /* height or max-height is important */
+  height: 310px;
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th {
+    /* bg color is important for th; just specify one */
+    background-color: rgba(211, 210, 209, 0.961);
+  }
+
+  thead tr th {
+    position: sticky;
+    z-index: 1;
+  }
+
+  thead tr:first-child th {
+    top: 0;
+  }
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th {
+    /* height of all previous header rows */
+    top: 48px;
+  }
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody {
+    /* height of all previous header rows */
+    scroll-margin-top: 48px;
+  }
+}

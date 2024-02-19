@@ -1,0 +1,1172 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Started on 2017-12-17 15:22:50
+
+SET client_encoding = 'SQL_ASCII';
+SET standard_conforming_strings = off;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET escape_string_warning = off;
+
+--
+-- TOC entry 1700 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS 'Standard public schema';
+
+
+--
+-- TOC entry 295 (class 2612 OID 16386)
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: -
+--
+
+CREATE PROCEDURAL LANGUAGE plpgsql;
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- TOC entry 18 (class 1255 OID 133051)
+-- Dependencies: 295 5
+-- Name: on_trans(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION on_trans() RETURNS "trigger"
+    AS $$ DECLARE
+    cnt	INTEGER;
+  BEGIN
+    IF (TG_OP='INSERT') THEN
+      SELECT INTO cnt (select count(idcard) from stokkartu where idcard=NEW.idcard);
+
+      IF cnt>1 THEN
+        DELETE FROM stokkartu where OID=NEW.OID;
+      END IF;
+    END IF;
+    RETURN NULL;
+  END;
+$$
+    LANGUAGE plpgsql;
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 1300 (class 1259 OID 133052)
+-- Dependencies: 1656 5
+-- Name: c_user; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE c_user (
+    c_user_id character varying(25),
+    c_user_nip character varying(25),
+    c_user_name character varying(55),
+    c_user_address character varying(75),
+    c_user_phone character varying(15),
+    c_user_username character varying(55),
+    c_user_password character varying(55),
+    c_user_gender smallint,
+    c_user_status integer DEFAULT 0
+);
+
+
+--
+-- TOC entry 1301 (class 1259 OID 133055)
+-- Dependencies: 5
+-- Name: c_user_access_menu; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE c_user_access_menu (
+    c_user_id character varying(25),
+    c_menu_access character varying
+);
+
+
+SET default_with_oids = true;
+
+--
+-- TOC entry 1302 (class 1259 OID 133060)
+-- Dependencies: 5
+-- Name: card_in_out; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE card_in_out (
+    tanggal timestamp without time zone,
+    jenis integer,
+    qty integer,
+    user_id character varying,
+    keterangan character varying,
+    adm character varying,
+    notrans character varying
+);
+
+
+--
+-- TOC entry 1303 (class 1259 OID 133065)
+-- Dependencies: 5
+-- Name: config_pos_hardware; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE config_pos_hardware (
+    printer1_avail integer,
+    printer1_conn character varying(20),
+    printer1_spd character varying(6),
+    printer1_stdfile integer,
+    printer1_autocutter integer,
+    printer1_dummy integer,
+    video1_avail integer,
+    video1_conn character varying(20),
+    video1_channel integer,
+    video1_version integer,
+    sizeable integer,
+    camera_refresh integer,
+    bg_avail integer,
+    bg_conn character varying(20),
+    bg_value integer,
+    id_pos character varying(5),
+    smartcard_avail smallint,
+    smartcard_speed integer,
+    smartcard_port character varying(32),
+    smartcard_barrier_avail smallint,
+    smartcard_barrier_port character varying(32),
+    smartcard_barrier_speed integer
+);
+
+
+--
+-- TOC entry 1323 (class 1259 OID 133279)
+-- Dependencies: 5
+-- Name: customer; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE customer (
+    kode character varying(50) NOT NULL,
+    nama character varying(60) NOT NULL,
+    alamat character varying(60),
+    telepon character varying(15),
+    no_id character varying(20),
+    no_kartu character varying(12)
+);
+
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 1304 (class 1259 OID 133069)
+-- Dependencies: 5
+-- Name: detail_penjualan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE detail_penjualan (
+    notrans character varying(50) NOT NULL,
+    id_wahana character varying(20),
+    tarif integer,
+    qty integer
+);
+
+
+--
+-- TOC entry 1305 (class 1259 OID 133071)
+-- Dependencies: 5
+-- Name: detail_penjualan_pos; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE detail_penjualan_pos (
+    notrans character varying(50) NOT NULL,
+    no_kartu character varying(20),
+    tanggal timestamp without time zone
+);
+
+
+SET default_with_oids = true;
+
+--
+-- TOC entry 1324 (class 1259 OID 133281)
+-- Dependencies: 5
+-- Name: detail_transaksi_customer; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE detail_transaksi_customer (
+    notrans character varying(50) NOT NULL,
+    id_customer character varying(255) NOT NULL,
+    tanggal timestamp without time zone,
+    adm character varying(50),
+    biaya integer,
+    awal timestamp without time zone,
+    akhir timestamp without time zone,
+    tgl_edited timestamp without time zone
+);
+
+
+--
+-- TOC entry 1306 (class 1259 OID 133073)
+-- Dependencies: 5
+-- Name: id_list; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE id_list (
+    no_card character varying(15),
+    tanggal timestamp without time zone,
+    qty integer
+);
+
+
+--
+-- TOC entry 1307 (class 1259 OID 133075)
+-- Dependencies: 1657 5
+-- Name: indexnum; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE indexnum (
+    kode character varying(20) NOT NULL,
+    nama character varying(255) NOT NULL,
+    value character varying(50) DEFAULT '0'::character varying
+);
+
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 1308 (class 1259 OID 133078)
+-- Dependencies: 5
+-- Name: keyallow; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE keyallow (
+    factory_name character varying,
+    keycode character varying,
+    reg_date character varying
+);
+
+
+SET default_with_oids = true;
+
+--
+-- TOC entry 1309 (class 1259 OID 133083)
+-- Dependencies: 5
+-- Name: liburan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE liburan (
+    tanggal timestamp without time zone NOT NULL,
+    keterangan character varying(255)
+);
+
+
+--
+-- TOC entry 1310 (class 1259 OID 133085)
+-- Dependencies: 5
+-- Name: login_log; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE login_log (
+    id_petugas character varying(20) NOT NULL,
+    id_shift character varying(20) NOT NULL,
+    time_login timestamp without time zone NOT NULL,
+    time_logout timestamp without time zone,
+    tanggal timestamp without time zone NOT NULL,
+    pos character varying(10),
+    adm character varying(16),
+    modal_awal integer,
+    awal_shift timestamp without time zone,
+    qty_kartu integer
+);
+
+
+--
+-- TOC entry 1311 (class 1259 OID 133087)
+-- Dependencies: 5
+-- Name: master_lokasi; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE master_lokasi (
+    id_lokasi character varying(20),
+    nama_lokasi character varying(30)
+);
+
+
+--
+-- TOC entry 1312 (class 1259 OID 133089)
+-- Dependencies: 5
+-- Name: nama_pos; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE nama_pos (
+    id character varying(20) NOT NULL,
+    nama character varying(50) NOT NULL,
+    tanggal timestamp without time zone NOT NULL,
+    area character varying(10)
+);
+
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 1313 (class 1259 OID 133091)
+-- Dependencies: 5
+-- Name: penjualan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE penjualan (
+    notrans character varying(50) NOT NULL,
+    id_customer character varying(255) NOT NULL,
+    tanggal timestamp without time zone,
+    adm character varying(50),
+    qty integer,
+    total integer
+);
+
+
+SET default_with_oids = true;
+
+--
+-- TOC entry 1314 (class 1259 OID 133093)
+-- Dependencies: 1658 5
+-- Name: penjualan_pos; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE penjualan_pos (
+    id character varying(20) NOT NULL,
+    status smallint NOT NULL,
+    id_pintu_masuk character varying(20),
+    id_op_masuk character varying(20),
+    waktu_masuk timestamp without time zone,
+    id_shift_masuk character varying(20),
+    tanggal timestamp without time zone NOT NULL,
+    pic_body_masuk bytea,
+    bayar integer,
+    pmlogin timestamp without time zone,
+    upload integer DEFAULT 0,
+    qty_dewasa integer,
+    tarif_dewasa integer,
+    qty_anak integer,
+    tarif_anak integer,
+    qty_sekolah integer,
+    tarif_sekolah integer,
+    discount integer,
+    cara_bayar integer,
+    no_kartu character varying,
+    qty integer,
+    sisa_qty_kartu integer
+);
+
+
+--
+-- TOC entry 1315 (class 1259 OID 133099)
+-- Dependencies: 5
+-- Name: randomnumber; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE randomnumber (
+    used smallint NOT NULL,
+    pos character varying(50) NOT NULL,
+    number integer
+);
+
+
+--
+-- TOC entry 1316 (class 1259 OID 133101)
+-- Dependencies: 5
+-- Name: shift; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE shift (
+    id character varying(50) NOT NULL,
+    mulai character varying(50) NOT NULL,
+    selama bigint NOT NULL,
+    tanggal timestamp without time zone
+);
+
+
+--
+-- TOC entry 1317 (class 1259 OID 133103)
+-- Dependencies: 5
+-- Name: softseting; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE softseting (
+    namasoft character varying(255) NOT NULL,
+    versoft character varying(50) NOT NULL,
+    namasystem character varying(255) NOT NULL,
+    versystem character varying(50) NOT NULL,
+    namaperusahaan character varying(255) NOT NULL,
+    alamat character varying(255) NOT NULL,
+    telepon character varying(255),
+    namalokasi character varying(255) NOT NULL,
+    alamatlokasi character varying(255) NOT NULL,
+    npwp character varying(50),
+    nppkp character varying(50)
+);
+
+
+--
+-- TOC entry 1318 (class 1259 OID 133108)
+-- Dependencies: 5
+-- Name: stokkartu; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE stokkartu (
+    idcard character varying(15),
+    lokasi character varying(2),
+    kendaraan character varying(2),
+    status smallint,
+    tanggal timestamp without time zone,
+    no_urut character varying(10)
+);
+
+
+--
+-- TOC entry 1319 (class 1259 OID 133110)
+-- Dependencies: 5
+-- Name: tarif; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE tarif (
+    tarif_id integer NOT NULL,
+    area character varying(10),
+    id_gol character varying(10),
+    mulai_berlaku timestamp without time zone,
+    harga integer,
+    keterangan character varying(255),
+    hari_berlaku integer
+);
+
+
+--
+-- TOC entry 1320 (class 1259 OID 133112)
+-- Dependencies: 1659 5
+-- Name: transaksi_penjualan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE transaksi_penjualan (
+    id character varying(20) NOT NULL,
+    status smallint NOT NULL,
+    id_pintu_masuk character varying(20),
+    id_op_masuk character varying(20),
+    waktu_masuk timestamp without time zone,
+    id_shift_masuk character varying(20),
+    tanggal timestamp without time zone NOT NULL,
+    pic_body_masuk bytea,
+    bayar integer,
+    pmlogin timestamp without time zone,
+    upload integer DEFAULT 0
+);
+
+
+--
+-- TOC entry 1321 (class 1259 OID 133118)
+-- Dependencies: 5
+-- Name: transaksi_pos; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE transaksi_pos (
+    no_kartu character varying(20) NOT NULL,
+    status smallint NOT NULL,
+    id_pintu_masuk character varying(20),
+    waktu_masuk timestamp without time zone
+);
+
+
+--
+-- TOC entry 1325 (class 1259 OID 133283)
+-- Dependencies: 5
+-- Name: transaksi_voucher; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE transaksi_voucher (
+    no_id character varying,
+    no_kartu character varying(12),
+    tanggal_aktif timestamp without time zone,
+    adm character varying(10),
+    nilai_awal integer,
+    saldo integer,
+    last_use timestamp without time zone
+);
+
+
+--
+-- TOC entry 1322 (class 1259 OID 133120)
+-- Dependencies: 5
+-- Name: wahana_permainan; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE wahana_permainan (
+    id character varying(20) NOT NULL,
+    nama character varying(50) NOT NULL
+);
+
+
+--
+-- TOC entry 1671 (class 0 OID 133052)
+-- Dependencies: 1300
+-- Data for Name: c_user; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY c_user (c_user_id, c_user_nip, c_user_name, c_user_address, c_user_phone, c_user_username, c_user_password, c_user_gender, c_user_status) FROM stdin;
+01		Admin			admin	admin	0	0
+\.
+
+
+--
+-- TOC entry 1672 (class 0 OID 133055)
+-- Dependencies: 1301
+-- Data for Name: c_user_access_menu; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY c_user_access_menu (c_user_id, c_menu_access) FROM stdin;
+007	File1
+007	LogOut1
+007	KeluarProgram1
+007	Setup1
+007	BiodataPegawai1
+007	MasterShift1
+007	MasterArea1
+007	GolonganKendaraan1
+007	LocalSetting1
+007	TarifRetribusi1
+007	MasterPos1
+007	StokKartu1
+007	Tool1
+007	DaftarCustomer1
+007	PenjualanKartu1
+007	MonitorGerbang1
+007	Report1
+007	Transaksi1
+007	Statistik1
+007	HistorikalLogin1
+007	Tool2
+007	ExportData1
+007	ExportDataTransaksi1
+007	ImportData1
+02	Tool1
+02	PenjualanKartu1
+02	MonitorGerbang1
+02	Tool2
+02	ExportData1
+02	ExportDataTransaksi1
+02	ImportData1
+03	File1
+03	LogOut1
+03	KeluarProgram1
+03	Tool1
+03	PenjualanKartu1
+03	MonitorGerbang1
+03	Report1
+03	Tool2
+03	ExportData1
+03	ExportDataTransaksi1
+03	ImportData1
+04	File1
+04	LogOut1
+04	KeluarProgram1
+04	Tool1
+04	PenjualanKartu1
+04	MonitorGerbang1
+04	Tool2
+04	ExportData1
+04	ExportDataTransaksi1
+04	ImportData1
+05	File1
+05	LogOut1
+05	KeluarProgram1
+05	Tool1
+05	PenjualanKartu1
+05	MonitorGerbang1
+05	Tool2
+05	ExportData1
+05	ExportDataTransaksi1
+05	ImportData1
+07	File1
+07	LogOut1
+07	KeluarProgram1
+07	Tool1
+07	MonitorGerbang1
+07	Tool2
+07	ExportData1
+07	ExportDataTransaksi1
+07	ImportData1
+08	File1
+08	LogOut1
+08	KeluarProgram1
+08	Tool1
+08	MonitorGerbang1
+08	Tool2
+08	ExportData1
+08	ExportDataTransaksi1
+08	ImportData1
+06	File1
+06	LogOut1
+06	KeluarProgram1
+06	Tool1
+06	MonitorGerbang1
+06	Tool2
+06	ExportData1
+06	ExportDataTransaksi1
+06	ImportData1
+01	File1
+01	LogOut1
+01	KeluarProgram1
+01	Setup1
+01	BiodataPegawai1
+01	MasterShift1
+01	LocalSetting1
+01	NamaWahana1
+01	TarifRetribusi1
+01	MasterPos1
+01	StokKartu1
+01	DaftarHariLibur1
+01	Operasional1
+01	TransaksiLangganan1
+01	TransaksiVoucher1
+01	Report1
+01	Transaksi1
+01	TransaksiLangganan2
+01	TransaksiVoucher2
+01	HistorikalLogin1
+\.
+
+
+--
+-- TOC entry 1673 (class 0 OID 133060)
+-- Dependencies: 1302
+-- Data for Name: card_in_out; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY card_in_out (tanggal, jenis, qty, user_id, keterangan, adm, notrans) FROM stdin;
+2013-03-07 06:00:00	1	5	CUSTOMER	PENJUALAN	01	0008/PJL/03/2013
+2013-03-07 06:00:00	0	3000	01	STOK AWAL	01	0001/KM/03/2013
+2013-03-11 06:00:00	1	2	CUSTOMER	PENJUALAN	01	0009/PJL/03/2013
+2013-03-22 06:00:00	1	2	CUSTOMER	PENJUALAN	01	0010-KPBN/22/03/2013BA.HR
+2013-03-22 06:00:00	1	1	CUSTOMER	PENJUALAN	01	0011-KPBN/22/03/2013/BA.HR
+2013-03-27 06:00:00	1	2	CUSTOMER	PENJUALAN	01	0012-KPBN/27/03/2013/BA.HR
+2013-03-27 06:00:00	1	1	CUSTOMER	PENJUALAN	01	0013-KPBN/27/03/2013/BA.HR
+\.
+
+
+--
+-- TOC entry 1674 (class 0 OID 133065)
+-- Dependencies: 1303
+-- Data for Name: config_pos_hardware; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY config_pos_hardware (printer1_avail, printer1_conn, printer1_spd, printer1_stdfile, printer1_autocutter, printer1_dummy, video1_avail, video1_conn, video1_channel, video1_version, sizeable, camera_refresh, bg_avail, bg_conn, bg_value, id_pos, smartcard_avail, smartcard_speed, smartcard_port, smartcard_barrier_avail, smartcard_barrier_port, smartcard_barrier_speed) FROM stdin;
+1	/dev/ttyS0	9600	1	1	0	1	/dev/video0	0	0	0	500	0	COM1	85	02	1	9600	COM13	\N	\N	\N
+0	/dev/ttyS0	9600	1	1	0	0	/dev/video0	0	0	0	500	0	COM1	85	01	1	9600	COM13	\N	\N	\N
+1	/dev/ttyS0	9600	1	1	0	1	/dev/video0	2	1	0	500	1	/dev/ttyUSB1	45	G38	1	9600	/dev/ttyUSB0	0	\N	45
+1	/dev/ttyS0	9600	1	1	0	0	/dev/video0	0	0	0	500	0	COM1	85	P38	1	9600	COM4	0	COM1	85
+1	/dev/ttyS0	9600	1	1	0	1	/dev/video0	2	1	0	500	1	/dev/ttyS0	45	G41	1	9600	/dev/ttyUSB0	0	COM1	45
+1	/dev/ttyS0	9600	1	1	0	0	/dev/video0	0	0	0	500	0	COM1	85	P41	1	9600	COM4	0	COM1	85
+\.
+
+
+--
+-- TOC entry 1694 (class 0 OID 133279)
+-- Dependencies: 1323
+-- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY customer (kode, nama, alamat, telepon, no_id, no_kartu) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1675 (class 0 OID 133069)
+-- Dependencies: 1304
+-- Data for Name: detail_penjualan; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY detail_penjualan (notrans, id_wahana, tarif, qty) FROM stdin;
+0043/PJL-POS/12/2017	01	30000	2
+0044/PJL-POS/12/2017	02	25000	2
+0045/PJL-POS/12/2017	02	25000	2
+0045/PJL-POS/12/2017	01	30000	1
+0046/PJL-POS/12/2017	17	65000	1
+0047/PJL-POS/12/2017	17	65000	1
+0048/PJL-POS/12/2017	01	17000	1
+0049/PJL-POS/12/2017	01	17000	1
+0050/PJL-POS/12/2017	10 	8000	1
+0051/PJL-POS/12/2017	03	13000	1
+0051/PJL-POS/12/2017	10 	8000	1
+0052/PJL-POS/12/2017	13	85000	1
+0053/PJL-POS/12/2017	17	65000	1
+0054/PJL-POS/12/2017	02	20000	1
+\.
+
+
+--
+-- TOC entry 1676 (class 0 OID 133071)
+-- Dependencies: 1305
+-- Data for Name: detail_penjualan_pos; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY detail_penjualan_pos (notrans, no_kartu, tanggal) FROM stdin;
+0028/PJL-POS/12/1899	0123456789	2013-04-17 20:17:43
+0028/PJL-POS/12/1899	1234567890	2013-04-17 20:17:43
+0028/PJL-POS/12/1899	1111111111	2013-04-17 20:17:43
+0029/PJL-POS/12/1899	1111111111	2013-04-17 20:20:01
+0030/PJL-POS/12/1899	1111111111	2013-04-18 08:47:48
+0031/PJL-POS/12/1899	1111111111	2013-07-11 08:28:32
+0032/PJL-POS/12/1899	1111111111	2013-07-12 08:06:27
+0033/PJL-POS/12/1899	1111111111	2013-07-13 16:47:28
+0034/PJL-POS/12/1899	1111111111	2013-07-18 08:18:19
+0035/PJL-POS/12/1899	004C667B6	2013-07-25 12:47:05
+0036/PJL-POS/12/1899	0004C667B6	2013-07-28 08:48:30
+0037/PJL-POS/12/1899	0004C667B6	2013-07-28 08:50:54
+0038/PJL-POS/12/1899	1111111111	2013-07-28 13:58:47
+0039/PJL-POS/12/1899	1111111111	2013-07-28 11:10:35
+0040/PJL-POS/12/1899	0004C667B6	2013-07-28 11:15:28
+0041/PJL-POS/12/1899	0123456789	2016-04-08 10:20:05
+0042/PJL-POS/12/1899	0123456789	2016-04-08 10:22:18
+0043/PJL-POS/12/2017	1111111111	2017-12-04 10:52:20
+0043/PJL-POS/12/2017	2222222222	2017-12-04 10:52:20
+0044/PJL-POS/12/2017	1111111111	2017-12-04 11:02:24
+0044/PJL-POS/12/2017	2222222222	2017-12-04 11:02:24
+0045/PJL-POS/12/2017	1111111111	2017-12-04 11:06:53
+0045/PJL-POS/12/2017	2222222222	2017-12-04 11:06:53
+0045/PJL-POS/12/2017	1234567890	2017-12-04 11:06:53
+0046/PJL-POS/12/2017	1111111111	2017-12-14 08:58:05
+0047/PJL-POS/12/2017	1111111111	2017-12-14 08:58:11
+0048/PJL-POS/12/2017	1111111111	2017-12-14 11:08:13
+0049/PJL-POS/12/2017	1111111111	2017-12-14 11:08:31
+0050/PJL-POS/12/2017	1111111111	2017-12-14 11:50:11
+0051/PJL-POS/12/2017	1111111111	2017-12-14 11:52:21
+0051/PJL-POS/12/2017	2222222222	2017-12-14 11:52:21
+0052/PJL-POS/12/2017	1111111111	2017-12-14 11:53:55
+0053/PJL-POS/12/2017	1111111111	2017-12-14 11:54:24
+0054/PJL-POS/12/2017	1111111111	2017-12-17 14:58:02
+\.
+
+
+--
+-- TOC entry 1695 (class 0 OID 133281)
+-- Dependencies: 1324
+-- Data for Name: detail_transaksi_customer; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY detail_transaksi_customer (notrans, id_customer, tanggal, adm, biaya, awal, akhir, tgl_edited) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1677 (class 0 OID 133073)
+-- Dependencies: 1306
+-- Data for Name: id_list; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY id_list (no_card, tanggal, qty) FROM stdin;
+1234567890	2017-12-04 11:06:53.703	\N
+2222222222	2017-12-14 11:52:21.287	\N
+1111111111	2017-12-17 14:58:02.812	1
+\.
+
+
+--
+-- TOC entry 1678 (class 0 OID 133075)
+-- Dependencies: 1307
+-- Data for Name: indexnum; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY indexnum (kode, nama, value) FROM stdin;
+075	keluarmasuk	2
+025	penjualan	14
+050	penjualan_pos	55
+\.
+
+
+--
+-- TOC entry 1679 (class 0 OID 133078)
+-- Dependencies: 1308
+-- Data for Name: keyallow; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY keyallow (factory_name, keycode, reg_date) FROM stdin;
+IA==	$C8766343	MDMvMDMvMjAxOA==
+\.
+
+
+--
+-- TOC entry 1680 (class 0 OID 133083)
+-- Dependencies: 1309
+-- Data for Name: liburan; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY liburan (tanggal, keterangan) FROM stdin;
+2013-08-08 00:00:00	Idul Fitri 1423 H
+\.
+
+
+--
+-- TOC entry 1681 (class 0 OID 133085)
+-- Dependencies: 1310
+-- Data for Name: login_log; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY login_log (id_petugas, id_shift, time_login, time_logout, tanggal, pos, adm, modal_awal, awal_shift, qty_kartu) FROM stdin;
+01	S2	2013-04-17 20:53:25	2013-04-17 20:53:40	2013-04-17 20:53:25.062	01	\N	\N	2013-04-17 19:00:00	\N
+01	S2	2013-04-17 20:58:56	2013-04-17 20:59:00	2013-04-17 20:58:56.984	01	\N	\N	2013-04-17 19:00:00	\N
+01	S1	2013-04-18 08:44:38	2013-04-18 08:45:51	2013-04-18 08:44:38.687	01	\N	\N	2013-04-18 07:00:00	\N
+01	S1	2013-04-18 08:46:29	2013-04-18 08:48:16	2013-04-18 08:46:29.328	01	\N	\N	2013-04-18 07:00:00	\N
+01	S1	2013-06-19 12:12:46	2013-06-19 12:12:58	2013-06-19 12:12:46.656	01	\N	\N	2013-06-19 07:00:00	\N
+01	S1	2013-07-11 08:20:00	2013-07-11 08:31:39	2013-07-11 08:20:00.437	01	\N	\N	2013-07-11 07:00:00	\N
+01	S1	2013-07-11 08:21:12	2013-07-11 08:31:39	2013-07-11 08:21:12.781	01	\N	\N	2013-07-11 07:00:00	\N
+01	S1	2013-07-11 08:25:48	2013-07-11 08:31:39	2013-07-11 08:25:48.265	01	\N	\N	2013-07-11 07:00:00	\N
+01	S1	2013-07-11 08:28:23	2013-07-11 08:31:39	2013-07-11 08:28:24.015	01	\N	\N	2013-07-11 07:00:00	\N
+01	S1	2013-07-11 09:15:30	2013-07-12 08:06:37	2013-07-11 09:15:31.296	01	\N	\N	2013-07-11 07:00:00	\N
+01	S1	2013-07-12 08:06:21	2013-07-12 08:06:37	2013-07-12 08:06:21.531	01	\N	\N	2013-07-12 07:00:00	\N
+01	S1	2013-07-13 16:47:16	2013-07-13 16:47:58	2013-07-13 16:47:17.187	01	\N	\N	2013-07-13 07:00:00	\N
+01	S1	2013-07-18 08:18:11	2013-07-25 09:41:12	2013-07-18 08:18:12.078	01	\N	\N	2013-07-18 07:00:00	\N
+01	S1	2013-07-25 09:37:37	2013-07-25 09:41:12	2013-07-25 09:37:37.828	01	\N	\N	2013-07-25 07:00:00	\N
+01	S1	2013-07-25 09:41:05	2013-07-25 09:41:12	2013-07-25 09:41:05.531	01	\N	\N	2013-07-25 07:00:00	\N
+01	S1	2013-07-20 09:41:21	2013-07-20 09:41:58	2013-07-20 09:41:21.937	01	\N	\N	2013-07-20 07:00:00	\N
+01	S1	2013-07-27 09:43:44	2013-07-27 09:43:56	2013-07-27 09:43:45.109	01	\N	\N	2013-07-20 07:00:00	\N
+01	S1	2013-07-28 13:50:08	2013-07-28 13:50:52	2013-07-28 13:50:08.906	01	\N	\N	2013-07-28 07:00:00	\N
+01	S1	2013-07-28 13:58:38	2013-07-28 14:02:59	2013-07-28 13:58:38.765	01	\N	\N	2013-07-28 07:00:00	\N
+01	S2	2013-11-13 20:14:14	2013-11-13 20:14:20	2013-11-13 20:14:14.875	01	\N	\N	2013-11-13 19:00:00	\N
+01	S1	2016-04-08 10:09:52	2016-04-08 10:12:05	2016-04-08 10:09:52.822	01	\N	\N	2016-04-08 07:00:00	\N
+01	S1	2016-04-08 10:19:56	2016-04-08 10:25:30	2016-04-08 10:19:57.432	01	\N	\N	2016-04-08 07:00:00	\N
+01	S1	2016-04-08 10:22:10	2016-04-08 10:25:30	2016-04-08 10:22:11.324	01	\N	\N	2016-04-08 07:00:00	\N
+01	S1	2016-04-08 10:29:12	2016-04-08 10:29:16	2016-04-08 10:29:12.70	01	\N	\N	2016-04-08 07:00:00	\N
+01	S1	2016-04-08 11:02:46	2016-04-08 11:02:49	2016-04-08 11:02:46.155	01	\N	\N	2016-04-08 07:00:00	\N
+01	S1	2017-12-04 09:49:51	2017-12-04 11:03:45	2017-12-04 09:49:51.687	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:02:53	2017-12-04 11:03:45	2017-12-04 10:02:53.453	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:10:43	2017-12-04 11:03:45	2017-12-04 10:10:43.937	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:11:44	2017-12-04 11:03:45	2017-12-04 10:11:44.218	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:12:50	2017-12-04 11:03:45	2017-12-04 10:12:51.453	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:15:09	2017-12-04 11:03:45	2017-12-04 10:15:09.781	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:24:35	2017-12-04 11:03:45	2017-12-04 10:24:35.796	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:31:48	2017-12-04 11:03:45	2017-12-04 10:31:48.75	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:46:48	2017-12-04 11:03:45	2017-12-04 10:46:49.265	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:48:46	2017-12-04 11:03:45	2017-12-04 10:48:46.687	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 10:51:53	2017-12-04 11:03:45	2017-12-04 10:51:53.906	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 11:02:04	2017-12-04 11:03:45	2017-12-04 11:02:04.421	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 11:04:50	2017-12-04 11:04:56	2017-12-04 11:04:50.546	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-04 11:06:07	2017-12-04 11:06:57	2017-12-04 11:06:08.125	01	\N	\N	2017-12-04 07:00:00	\N
+01	S1	2017-12-14 07:49:44	2017-12-14 07:54:32	2017-12-14 07:49:44.158	01	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 07:54:44	2017-12-14 09:17:25	2017-12-14 07:54:45.109	01	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 11:07:24	2017-12-14 11:47:53	2017-12-14 11:07:24.791	01	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 11:49:04	2017-12-14 11:51:10	2017-12-14 11:49:04.838	PM1	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 11:51:17	2017-12-14 11:53:22	2017-12-14 11:51:18.185	PM1	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 11:53:32	2017-12-14 11:55:32	2017-12-14 11:53:32.345	PM1	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-14 11:56:11	2017-12-17 14:33:36	2017-12-14 11:56:11.559	PM1	\N	\N	2017-12-14 07:00:00	\N
+01	S1	2017-12-17 14:55:19	\N	2017-12-17 14:55:19.667	PM1	\N	\N	2017-12-17 07:00:00	\N
+\.
+
+
+--
+-- TOC entry 1682 (class 0 OID 133087)
+-- Dependencies: 1311
+-- Data for Name: master_lokasi; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY master_lokasi (id_lokasi, nama_lokasi) FROM stdin;
+01	Area Utara
+02	Area Selatan
+\.
+
+
+--
+-- TOC entry 1683 (class 0 OID 133089)
+-- Dependencies: 1312
+-- Data for Name: nama_pos; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY nama_pos (id, nama, tanggal, area) FROM stdin;
+01	Kasir 1	2013-04-17 18:44:27.89	\N
+\.
+
+
+--
+-- TOC entry 1684 (class 0 OID 133091)
+-- Dependencies: 1313
+-- Data for Name: penjualan; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY penjualan (notrans, id_customer, tanggal, adm, qty, total) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1685 (class 0 OID 133093)
+-- Dependencies: 1314
+-- Data for Name: penjualan_pos; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY penjualan_pos (id, status, id_pintu_masuk, id_op_masuk, waktu_masuk, id_shift_masuk, tanggal, pic_body_masuk, bayar, pmlogin, upload, qty_dewasa, tarif_dewasa, qty_anak, tarif_anak, qty_sekolah, tarif_sekolah, discount, cara_bayar, no_kartu, qty, sisa_qty_kartu) FROM stdin;
+0028/PJL-POS/12/1899	1	01	01	2013-04-17 20:17:43	S2	2013-04-17 20:17:43.89		250000	2013-04-17 19:00:00	0	2	90000	1	70000	\N	\N	\N	\N	\N	\N	\N
+0029/PJL-POS/12/1899	1	01	01	2013-04-17 20:20:01	S2	2013-04-17 20:20:01.562		90000	2013-04-17 19:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0030/PJL-POS/12/1899	1	01	01	2013-04-18 08:47:48	S1	2013-04-18 08:47:48.421		90000	2013-04-18 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0031/PJL-POS/12/1899	1	01	01	2013-07-11 08:28:32	S1	2013-07-11 08:28:33.921		90000	2013-07-11 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0032/PJL-POS/12/1899	1	01	01	2013-07-12 08:06:27	S1	2013-07-12 08:06:27.796		90000	2013-07-12 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0033/PJL-POS/12/1899	1	01	01	2013-07-13 16:47:28	S1	2013-07-13 16:47:28.343		90000	2013-07-13 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0034/PJL-POS/12/1899	1	01	01	2013-07-18 08:18:19	S1	2013-07-18 08:18:19.734		90000	2013-07-18 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0035/PJL-POS/12/1899	1	01	01	2013-07-25 12:47:05	S1	2013-07-25 12:47:05.859		90000	2013-07-25 07:00:00	0	1	90000	0	70000	\N	\N	\N	\N	\N	\N	\N
+0041/PJL-POS/12/1899	1	01	01	2016-04-08 10:20:05	S1	2016-04-08 10:20:05.894		90000	2016-04-08 07:00:00	0	1	90000	0	70000	0	7500	\N	\N	\N	\N	\N
+0042/PJL-POS/12/1899	1	01	01	2016-04-08 10:22:18	S1	2016-04-08 10:22:18.384		90000	2016-04-08 07:00:00	0	1	90000	0	70000	0	7500	\N	\N	\N	\N	\N
+0043/PJL-POS/12/2017	1	01	01	2017-12-04 10:52:20	S1	2017-12-04 10:53:46.031		60000	2017-12-04 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0044/PJL-POS/12/2017	1	01	01	2017-12-04 11:02:24	S1	2017-12-04 11:02:24.187		45000	2017-12-04 07:00:00	0	\N	\N	\N	\N	\N	\N	5000	\N	\N	\N	\N
+0045/PJL-POS/12/2017	1	01	01	2017-12-04 11:06:53	S1	2017-12-04 11:06:53.703		70000	2017-12-04 07:00:00	0	\N	\N	\N	\N	\N	\N	10000	\N	\N	\N	\N
+0046/PJL-POS/12/2017	1	01	01	2017-12-14 08:58:05	S1	2017-12-14 08:58:05.804		65000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0047/PJL-POS/12/2017	1	01	01	2017-12-14 08:58:11	S1	2017-12-14 08:58:11.736		65000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0048/PJL-POS/12/2017	1	01	01	2017-12-14 11:08:13	S1	2017-12-14 11:08:13.697		17000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0049/PJL-POS/12/2017	1	01	01	2017-12-14 11:08:31	S1	2017-12-14 11:08:31.808		17000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0050/PJL-POS/12/2017	1	PM1	01	2017-12-14 11:50:11	S1	2017-12-14 11:50:11.138		8000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0051/PJL-POS/12/2017	1	PM1	01	2017-12-14 11:52:21	S1	2017-12-14 11:52:21.287		21000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0052/PJL-POS/12/2017	1	PM1	01	2017-12-14 11:53:55	S1	2017-12-14 11:53:55.418		85000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0053/PJL-POS/12/2017	1	PM1	01	2017-12-14 11:54:24	S1	2017-12-14 11:54:24.793		65000	2017-12-14 07:00:00	0	\N	\N	\N	\N	\N	\N	0	\N	\N	\N	\N
+0054/PJL-POS/12/2017	1	PM1	01	2017-12-17 14:58:02	S1	2017-12-17 14:58:02.812		20000	2017-12-17 07:00:00	0	\N	\N	\N	\N	\N	\N	0	0		0	0
+\.
+
+
+--
+-- TOC entry 1686 (class 0 OID 133099)
+-- Dependencies: 1315
+-- Data for Name: randomnumber; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY randomnumber (used, pos, number) FROM stdin;
+0	01	1
+\.
+
+
+--
+-- TOC entry 1687 (class 0 OID 133101)
+-- Dependencies: 1316
+-- Data for Name: shift; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY shift (id, mulai, selama, tanggal) FROM stdin;
+S1	07:00	720	2013-03-05 17:18:47.094659
+S2	19:00	720	2013-03-05 17:19:19.66229
+\.
+
+
+--
+-- TOC entry 1688 (class 0 OID 133103)
+-- Dependencies: 1317
+-- Data for Name: softseting; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY softseting (namasoft, versoft, namasystem, versystem, namaperusahaan, alamat, telepon, namalokasi, alamatlokasi, npwp, nppkp) FROM stdin;
+Ticketing System	2.8.213.0	Ticketing System	2.0	 	-	-	PGA Limo			
+\.
+
+
+--
+-- TOC entry 1689 (class 0 OID 133108)
+-- Dependencies: 1318
+-- Data for Name: stokkartu; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY stokkartu (idcard, lokasi, kendaraan, status, tanggal, no_urut) FROM stdin;
+0123456789	\N	\N	0	2013-04-17 18:52:20.14	K00001
+1234567890	\N	\N	0	2013-04-17 18:52:20.14	K00002
+1111111111	\N	\N	0	2013-04-17 18:52:20.14	K00003
+2222222222	\N	\N	0	2013-07-25 12:45:12.203	K00004
+\.
+
+
+--
+-- TOC entry 1690 (class 0 OID 133110)
+-- Dependencies: 1319
+-- Data for Name: tarif; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY tarif (tarif_id, area, id_gol, mulai_berlaku, harga, keterangan, hari_berlaku) FROM stdin;
+2	\N	01	2017-12-04 00:00:00	17000		0
+1	\N	02	2017-12-04 00:00:00	20000		1
+3	\N	03	2017-12-14 00:00:00	13000		0
+4	\N	04	2017-12-14 00:00:00	17000		1
+5	\N	07	2017-12-14 00:00:00	8000		0
+6	\N	08	2017-12-14 00:00:00	10000		1
+7	\N	05	2017-12-14 00:00:00	10000		0
+8	\N	06	2017-12-14 00:00:00	12000		1
+9	\N	09	2017-12-14 00:00:00	23000		1
+10	\N	10 	2017-12-14 00:00:00	8000		1
+11	\N	10 	2017-12-14 00:00:00	8000		0
+12	\N	13	2017-12-14 00:00:00	85000		0
+13	\N	14	2017-12-14 00:00:00	115000		1
+14	\N	15	2017-12-14 00:00:00	110000		0
+15	\N	16	2017-12-14 00:00:00	135000		0
+16	\N	17	2017-12-14 00:00:00	65000		0
+17	\N	17	2017-12-14 00:00:00	65000		1
+18	\N	18	2017-12-14 00:00:00	50000		1
+19	\N	18	2017-12-14 00:00:00	50000		0
+\.
+
+
+--
+-- TOC entry 1691 (class 0 OID 133112)
+-- Dependencies: 1320
+-- Data for Name: transaksi_penjualan; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY transaksi_penjualan (id, status, id_pintu_masuk, id_op_masuk, waktu_masuk, id_shift_masuk, tanggal, pic_body_masuk, bayar, pmlogin, upload) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1692 (class 0 OID 133118)
+-- Dependencies: 1321
+-- Data for Name: transaksi_pos; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY transaksi_pos (no_kartu, status, id_pintu_masuk, waktu_masuk) FROM stdin;
+0123456789	1	03	2016-04-08 10:57:21.228
+\.
+
+
+--
+-- TOC entry 1696 (class 0 OID 133283)
+-- Dependencies: 1325
+-- Data for Name: transaksi_voucher; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY transaksi_voucher (no_id, no_kartu, tanggal_aktif, adm, nilai_awal, saldo, last_use) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1693 (class 0 OID 133120)
+-- Dependencies: 1322
+-- Data for Name: wahana_permainan; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY wahana_permainan (id, nama) FROM stdin;
+02	Renang dewasa SML
+01	Renang dewasa HB
+03	Renang anak HB
+04	Renang anak SML
+05	rombongan dewasa HB
+06	rombongan dewasa SML
+07	rombongan anak HB
+08	rombongan anak SML
+09	Libur khusus
+10 	Renang Panca Putra
+11	Member renang keluarga
+12	Member renang personal
+13	Futsal umum pagi HB
+14	Futsal umum pagi SML
+15	Futsal umum malam HB
+16	Futsal umum malam SML
+17	Futsal pelajar
+18	Futsal Panca putra
+\.
+
+
+--
+-- TOC entry 1667 (class 2606 OID 133253)
+-- Dependencies: 1319 1319
+-- Name: tarif_id; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY tarif
+    ADD CONSTRAINT tarif_id PRIMARY KEY (tarif_id);
+
+
+--
+-- TOC entry 1660 (class 1259 OID 133254)
+-- Dependencies: 1302 1302
+-- Name: card_in_out_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX card_in_out_idx ON card_in_out USING btree (tanggal, jenis);
+
+
+--
+-- TOC entry 1661 (class 1259 OID 133255)
+-- Dependencies: 1302 1302
+-- Name: jenis_in_out_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX jenis_in_out_idx ON card_in_out USING btree (jenis, tanggal);
+
+
+--
+-- TOC entry 1662 (class 1259 OID 133256)
+-- Dependencies: 1314 1314 1314 1314
+-- Name: penjualan_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX penjualan_idx ON penjualan_pos USING btree (pmlogin, id_pintu_masuk, id_op_masuk, id_shift_masuk);
+
+
+--
+-- TOC entry 1663 (class 1259 OID 133257)
+-- Dependencies: 1318
+-- Name: stokkarti_lokasi; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX stokkarti_lokasi ON stokkartu USING btree (lokasi);
+
+
+--
+-- TOC entry 1664 (class 1259 OID 133258)
+-- Dependencies: 1318
+-- Name: stokkartu_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX stokkartu_idx ON stokkartu USING btree (idcard);
+
+
+--
+-- TOC entry 1665 (class 1259 OID 133259)
+-- Dependencies: 1318
+-- Name: stokkartu_kend; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX stokkartu_kend ON stokkartu USING btree (kendaraan);
+
+
+--
+-- TOC entry 1668 (class 1259 OID 133260)
+-- Dependencies: 1320 1320 1320 1320
+-- Name: transaksi_penjualan_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX transaksi_penjualan_idx ON transaksi_penjualan USING btree (pmlogin, id_pintu_masuk, id_op_masuk, id_shift_masuk);
+
+
+--
+-- TOC entry 1669 (class 1259 OID 133261)
+-- Dependencies: 1321 1321
+-- Name: transaksi_pos_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX transaksi_pos_idx ON transaksi_pos USING btree (no_kartu, waktu_masuk);
+
+
+--
+-- TOC entry 1670 (class 2620 OID 133262)
+-- Dependencies: 1318 18
+-- Name: on_stokkartu_insert; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER on_stokkartu_insert
+    AFTER INSERT ON stokkartu
+    FOR EACH ROW
+    EXECUTE PROCEDURE on_trans();
+
+
+--
+-- TOC entry 1701 (class 0 OID 0)
+-- Dependencies: 5
+-- Name: public; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2017-12-17 15:22:51
+
+--
+-- PostgreSQL database dump complete
+--
+

@@ -1,0 +1,27 @@
+{
+  "name": "barcode_listener",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "serve": "node index.js",
+    "reset": "node index.js --reset"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@serialport/parser-readline": "^12.0.0",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1",
+    "howler": "^2.2.4",
+    "native-barcode-scanner": "^1.3.0",
+    "node-hid": "^3.0.0",
+    "node-mp3-player": "^1.0.3",
+    "play-sound": "^1.1.6",
+    "serialport": "^12.0.0",
+    "simple-prompt-promise": "^1.0.3",
+    "usb": "^2.11.0"
+  }
+}
