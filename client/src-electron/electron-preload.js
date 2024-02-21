@@ -15,6 +15,7 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import JsBarcode from "jsbarcode";
+import { log } from "console";
 
 // const print = process.platform === "win32" ? printWindows : printUnix;
 
@@ -43,7 +44,7 @@ const directoryPath = path.join(os.homedir(), "struk");
 if (!fs.existsSync(directoryPath)) {
   fs.mkdirSync(directoryPath, { recursive: true });
 }
-const filePath = path.join(directoryPath, "struk.pdf");
+// const filePath = path.join(directoryPath, "struk.pdf");
 
 const generateBarcode = (text) => {
   const canvas = document.createElement("canvas");
@@ -51,18 +52,20 @@ const generateBarcode = (text) => {
   return canvas.toDataURL("image/png");
 };
 
-export const generatePDF = (transaksi, namaPrinter) => {
-  // console.log("transaksi", JSON.parse(transaksi.transaksi));
+export const generatePDF = (no_transaksi, tiket) => {
+  // console.log("transaksi", JSON.parse(data));
   // return;
 
-  const jenisTiket = JSON.parse(transaksi.transaksi)[0].jenis
-    ? JSON.parse(transaksi.transaksi)[0].jenis
-    : "Tiket Masuk";
+  // const jenisTiket = JSON.parse(data.transaksi)[0].jenis
+  //   ? JSON.parse(data.transaksi)[0].jenis
+  //   : "Tiket Masuk";
+
+  const data = JSON.parse(tiket);
 
   const pdf = new jsPDF({
     unit: "mm",
     format: [80, 150],
-    // plugins: [autoTable],
+    plugins: [autoTable],
   });
 
   const pageWidth = pdf.internal.pageSize.width;
@@ -72,13 +75,11 @@ export const generatePDF = (transaksi, namaPrinter) => {
     align: "center",
   });
 
-  
-
   pdf.setFontSize(5);
 
   const petugas = ls.get("petugas").nama;
   const waktu = new Date().toLocaleString("id-ID").replace(/\./g, ":");
-  const no_transaksi = transaksi.no_transaksi;
+  // const no_transaksi = data.no_transaksi;
 
   // pdf.text(`${waktu}`, 5, 8, { align: "left" });
 
@@ -89,16 +90,16 @@ export const generatePDF = (transaksi, namaPrinter) => {
   pdf.setFont("helvetica");
   pdf.setFontSize(13);
 
-  if (transaksi.namaPaket && transaksi.namaPaket !== null) {
-    pdf.text(transaksi.namaPaket, pdf.internal.pageSize.width / 2, 17, {
-      align: "center",
-    });
-  } else {
-    pdf.text(jenisTiket, pdf.internal.pageSize.width / 2, 17, {
-      align: "center",
-    });
-  }
-  
+  pdf.text(data.nama, pdf.internal.pageSize.width / 2, 17, {
+    align: "center",
+  });
+  // if (data.namaPaket && data.namaPaket !== null) {
+  // } else {
+  //   pdf.text(jenisTiket, pdf.internal.pageSize.width / 2, 17, {
+  //     align: "center",
+  //   });
+  // }
+
   pdf.setFontSize(7);
   pdf.text(
     ".:: Terimakasih atas kunjungan anda ::.",
@@ -119,12 +120,7 @@ export const generatePDF = (transaksi, namaPrinter) => {
     { align: "center" }
   );
 
-  pdf.line(
-    15,
-    5 + 32,
-    pdf.internal.pageSize.width - 5,
-    5 + 32
-  );
+  pdf.line(5, 5 + 32, pdf.internal.pageSize.width - 5, 5 + 32);
 
   pdf.text(
     "Scan Barcode Di Pintu Masuk",
@@ -152,13 +148,20 @@ export const generatePDF = (transaksi, namaPrinter) => {
         barcodeHeight
       );
       const pdfOutput = pdf.output("blob");
-      const filePath = `struk.pdf`;
+      const namaFile = data.nama + ".pdf";
 
       const reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = async function () {
         const buffer = this.result;
-        downloadPDF(buffer, filePath);
-        print(namaPrinter);
+        const isDownloaded = await downloadPDF(buffer, namaFile);
+        // console.log("download", download);
+
+        if (isDownloaded) {
+          fs.promises
+            .access(path.join(directoryPath, namaFile), fs.constants.F_OK)
+            .then(async () => await print(namaFile, data.qty))
+            .catch((error) => console.error(`File does not exist: ${error}`));
+        }
       };
       reader.readAsArrayBuffer(pdfOutput);
     };
@@ -166,21 +169,24 @@ export const generatePDF = (transaksi, namaPrinter) => {
   }
 };
 
-async function print(namaPrinter) {
+async function print(namaFile, qty) {
   // getWindowsPrinters().then(console.log);
   // return
-  console.log("print", namaPrinter);
-  const printerOption = {
-    printer: namaPrinter,
-  };
+  const namaPrinter = ls.get("namaPrinter");
+  // console.log("print", namaPrinter);
+  // const printerOption = {
+  //   printer: namaPrinter,
+  const options = [`-n ${qty}`];
+  // };
+  const filePath = path.join(directoryPath, namaFile);
 
   try {
     await fs.promises.access(filePath, fs.constants.F_OK);
 
     const printResult =
       process.platform === "win32"
-        ? await printWindows(filePath, printerOption.printer)
-        : await printUnix(filePath, printerOption.printer);
+        ? await printWindows(filePath, namaPrinter, options)
+        : await printUnix(filePath, namaPrinter, options);
 
     console.log(printResult);
   } catch (error) {
@@ -208,8 +214,21 @@ async function getPrinters() {
 }
 
 const getHomeDir = () => os.homedir();
-const downloadPDF = (pdf, filename) =>
-  ipcRenderer.send("download-pdf", pdf, filename);
+const downloadPDF = async (pdf, filename) => {
+  return new Promise((resolve, reject) => {
+    ipcRenderer.send("download-pdf", pdf, filename);
+    ipcRenderer.once("download-pdf-reply", (event, status, error) => {
+      log(status);
+      if (status) {
+        log("PDF downloaded successfully");
+        resolve(true);
+      } else {
+        log("Failed to download PDF:", error);
+        reject(false);
+      }
+    });
+  });
+};
 
 contextBridge.exposeInMainWorld("electron", {
   // serialport: createSerialPort,

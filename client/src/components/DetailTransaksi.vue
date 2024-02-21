@@ -188,52 +188,57 @@ const onClickBayar = async (method) => {
 
     // if (store.isSuccess) {
     const transaksi = transaksiStore();
-    const data = {
-      transaksi: JSON.stringify(transaksi.detailTransaksi),
-      diskon: transaksi.diskon,
-      totalAfterDiskon: transaksi.totalAfterDiskon,
-      totalBayar: transaksi.totalBayar,
-      // no_transaksi: transaksi.no_transaksi,
-      no_transaksi: "2024/02/22/0001",
-    };
+    // const data = {
+    //   transaksi: JSON.stringify(transaksi.detailTransaksi),
+    //   // diskon: transaksi.diskon,
+    //   // totalAfterDiskon: transaksi.totalAfterDiskon,
+    //   // totalBayar: transaksi.totalBayar,
+    //   // namaTiket: transaksi.namaPaket,
+    //   // no_transaksi: transaksi.no_transaksi,
+    //   no_transaksi: "2024/02/22/0001",
+    // };
+    const no_transaksi = "2024/02/22/0001";
 
     // if (transaksi.no_transaksi !== undefined) {
-      console.log("data.transaksi", data.transaksi);
-      // await generatePDF(data);
+    // console.log("data.transaksi", data.transaksi);
+    // await generatePDF(data);
 
-      const namaPrinter = ls.get("namaPrinter");
-      await window.electron.createPDFStruk(data, namaPrinter);
-      //   "Depok Fantasy Land",
-      //   JSON.stringify(data)
-      // );
-      // window.electron.print(namaPrinter);
-      // window.electron.printDirectlyToPrinter(namaPrinter);
-      $q.notify({
-        message: "Pembayaran Berhasil",
-        color: "green",
-        position: "top",
-      });
-    }
-    // dialogRef.value.hide();
-    // } else {
-    //   const existingTransaksiGagal = ls.get("transaksi_gagal") || [];
-    //   const newTransaksiGagal = transaksiStore().detailTransaksi;
-    //   const combinedTransaksiGagal = [
-    //     ...existingTransaksiGagal,
-    //     ...newTransaksiGagal,
-    //   ];
-    //   ls.set("transaksi_gagal", combinedTransaksiGagal);
-    //   $q.notify({
-    //     message: "Gagal",
-    //     color: "nagative",
-    //     position: "top",
-    //   });
-    // }
+    // const namaPrinter = ls.get("namaPrinter");
 
-    // const dialog = $q.dialog({
-    //   component: PaymentDialog,
-    // });
-    // dialog.update();
+    transaksi.detailTransaksi.forEach(async (item) => {
+      await window.electron.createPDFStruk(no_transaksi, JSON.stringify(item));
+    });
+    //   "Depok Fantasy Land",
+    //   JSON.stringify(data)
+    // );
+    // window.electron.print(namaPrinter);
+    // window.electron.printDirectlyToPrinter(namaPrinter);
+    $q.notify({
+      message: "Pembayaran Berhasil",
+      color: "green",
+      position: "top",
+    });
+  }
+  // dialogRef.value.hide();
+  // } else {
+  //   const existingTransaksiGagal = ls.get("transaksi_gagal") || [];
+  //   const newTransaksiGagal = transaksiStore().detailTransaksi;
+  //   const combinedTransaksiGagal = [
+  //     ...existingTransaksiGagal,
+  //     ...newTransaksiGagal,
+  //   ];
+  //   ls.set("transaksi_gagal", combinedTransaksiGagal);
+  //   $q.notify({
+  //     message: "Gagal",
+  //     color: "nagative",
+  //     position: "top",
+  //   });
+  // }
+
+  // const dialog = $q.dialog({
+  //   component: PaymentDialog,
+  // });
+  // dialog.update();
   // } else {
   //   transaksiStore().resetTransaksi();
   //   transaksiStore().isPaket = false;

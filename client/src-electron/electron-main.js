@@ -38,9 +38,10 @@ function createWindow() {
       const filePath = path.join(directoryPath, filename);
       const buffer = Buffer.from(arrayBuffer);
       await fsp.writeFile(filePath, buffer);
-      console.log("File written successfully");
+      event.reply("download-pdf-reply", true);
     } catch (err) {
       console.log("Error writing file", err);
+      event.reply("download-pdf-reply", false);
     }
   });
 
