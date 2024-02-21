@@ -193,10 +193,11 @@ const onClickBayar = async (method) => {
       diskon: transaksi.diskon,
       totalAfterDiskon: transaksi.totalAfterDiskon,
       totalBayar: transaksi.totalBayar,
-      no_transaksi: transaksi.no_transaksi,
+      // no_transaksi: transaksi.no_transaksi,
+      no_transaksi: "2024/02/22/0001",
     };
 
-    if (transaksi.no_transaksi !== undefined) {
+    // if (transaksi.no_transaksi !== undefined) {
       console.log("data.transaksi", data.transaksi);
       // await generatePDF(data);
 
@@ -233,11 +234,11 @@ const onClickBayar = async (method) => {
     //   component: PaymentDialog,
     // });
     // dialog.update();
-  } else {
-    transaksiStore().resetTransaksi();
-    transaksiStore().isPaket = false;
-  }
-  transaksiStore().resetTransaksi();
+  // } else {
+  //   transaksiStore().resetTransaksi();
+  //   transaksiStore().isPaket = false;
+  // }
+  // transaksiStore().resetTransaksi();
 };
 
 const handleKeyDownOnDetailTransaksi = (event) => {

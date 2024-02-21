@@ -23,13 +23,13 @@
         >
         </q-btn>
 
-        <q-toolbar-title>
+        <!-- <q-toolbar-title>
           <q-img
             src="~/assets/logo-dland.png"
             :width="$q.platform.is.desktop ? '200px' : '100px'"
             spinner-color="primary"
             spinner-size="20px"
-        /></q-toolbar-title>
+        /></q-toolbar-title> -->
 
         <div class="text-body text-weight-bolder text-white text-start q-px-md">
           {{ ls.get("petugas")?.nama }}

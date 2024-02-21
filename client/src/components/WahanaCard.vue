@@ -1,7 +1,7 @@
 <template>
   <q-card
     @contextmenu.prevent="onRightClick"
-    class="relative ticket flex column card-gradient hover rounded-10 text-center flex-center q-py-sm cursor-pointer non-selectable"
+    class="relative ticket flex column card-gradient hover rounded-10 text-center flex-center  non-selectable"
     :style="
       $q.screen.lt.sm
         ? 'width: 80vw;margin-top: 10px'
@@ -21,7 +21,7 @@
         :offset="[40, 50]"
       />
     </div>
-    <q-card-section @click="onClickWahana">
+    <q-card-section @click="onClickWahana" class="full-width  cursor-pointer">
       <div class="text-subtitle1 text-weight-bolder">
         {{ props.nama }}
       </div>
@@ -152,7 +152,7 @@ const onClickWahana = () => {
 // });
 
 const onRightClick = () => {
-  qty.value > 0 ? qty.value-- : qty.value;
+  // qty.value > 0 ? qty.value-- : qty.value;
   transaksiStore().decreaseQty(props.id);
 };
 </script>

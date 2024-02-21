@@ -55,7 +55,7 @@ module.exports = configure(function (/* ctx */) {
       // analyze: true,
       env: {
         WA_GATEWAY: "http://127.0.0.1:8000",
-        NAMA_PERUSAHAAN: "DEPOK FANTASY LAND",
+        NAMA_PERUSAHAAN: "PUTRI DUYUNG",
       },
       // rawDefine: {}
       // ignorePublicFolder: true,

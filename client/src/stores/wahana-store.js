@@ -8,7 +8,7 @@ export const wahanaStore = defineStore("wahana", {
     daftarWahana: [
       {
         id_wahana: "1",
-        nama: "Tiket Masuk Kolam Renang",
+        nama: "Tiket ",
         deskripsi: "",
         id_jenis: "1",
         hari: "weekday",

@@ -52,12 +52,12 @@ const generateBarcode = (text) => {
 };
 
 export const generatePDF = (transaksi, namaPrinter) => {
-  console.log("transaksi", transaksi);
+  // console.log("transaksi", JSON.parse(transaksi.transaksi));
   // return;
 
   const jenisTiket = JSON.parse(transaksi.transaksi)[0].jenis
     ? JSON.parse(transaksi.transaksi)[0].jenis
-    : "Tiket Satuan";
+    : "Tiket Masuk";
 
   const pdf = new jsPDF({
     unit: "mm",
@@ -68,22 +68,11 @@ export const generatePDF = (transaksi, namaPrinter) => {
   const pageWidth = pdf.internal.pageSize.width;
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(10);
-  pdf.text(process.env.NAMA_PERUSAHAAN, pdf.internal.pageSize.width / 2, 3, {
+  pdf.text(process.env.NAMA_PERUSAHAAN, pdf.internal.pageSize.width / 2, 5, {
     align: "center",
   });
 
-  pdf.setFont("helvetica");
-  pdf.setFontSize(13);
-
-  if (transaksi.namaPaket && transaksi.namaPaket !== null) {
-    pdf.text(transaksi.namaPaket, pdf.internal.pageSize.width / 2, 8, {
-      align: "center",
-    });
-  } else {
-    pdf.text(jenisTiket, pdf.internal.pageSize.width / 2, 8, {
-      align: "center",
-    });
-  }
+  
 
   pdf.setFontSize(5);
 
@@ -97,186 +86,52 @@ export const generatePDF = (transaksi, namaPrinter) => {
   pdf.text(waktu, pageWidth - 5, 11, { align: "right" });
 
   pdf.line(5, 12, pdf.internal.pageSize.width - 5, 12); // Draw a line at y = 12 mm from the left margin to the right margin
-  // const headers = {
-  //   wahana: "Wahana",
-  //   qty: transaksi.namaPaket && transaksi.namaPaket !== null ? "" : "Qty",
-  //   harga: transaksi.namaPaket && transaksi.namaPaket !== null ? "" : "Harga",
-  //   ceklis: "Ceklis",
-  // };
+  pdf.setFont("helvetica");
+  pdf.setFontSize(13);
 
-  const rows = Object.values(JSON.parse(transaksi.transaksi)).map((item) => [
-    item?.nama,
-    // `${
-    //   item.jenis?.toLowerCase() === "tiket wahana" ||
-    //   (item?.deskripsi !== "-" && item.jenis?.toLowerCase() === "tiket wahana")
-    //     ? // || item?.jenis === undefined
-    //       item?.nama
-    //     : item?.deskripsi === "-"
-    //     ? item?.nama
-    //     : item?.nama + " - " + item?.deskripsi
-    // }`, // Ganti dengan data sesuai kebutuhan, contoh: item?.nama,
-    // item?.jenis?.toLowerCase() === "tiket wahana" && !transaksi.namaPaket
-    //   ? // || item?.jenis === undefined
-    //     item?.qty
-    //   : "",
-    // item?.jenis?.toLowerCase() === "tiket wahana" && !transaksi.namaPaket
-    //   ? // || item?.jenis === undefined
-    //     formatCurrency(item?.total_bayar)
-    //   : "",
-    // ".............", // Ganti dengan data sesuai kebutuhan
-  ]);
-
-  const autoTableOptions = {
-    startY: 13,
-    // head: [headers],
-    body: rows,
-    showFoot: "never",
-    tableWidth: pdf.internal.pageSize.getWidth() - 5,
-    margin: { left: 5, right: 10 },
-    theme: "plain",
-
-    // didParseCell: (hookData) => {
-    //   if (hookData.section === "head") {
-    //     if (hookData.column.dataKey === "qty") {
-    //       hookData.cell.styles.halign = "center";
-    //     }
-    //   }
-    // },
-    // headStyles: { halign: "left", cellWidth: "auto", fontSize: 8 },
-    // columnStyles: {
-    //   0: { halign: "left", cellWidth: 30 },
-    //   1: { halign: "center", cellWidth: "auto" },
-    //   2: { halign: "left", cellWidth: "auto" },
-    //   3: { halign: "left", cellWidth: "auto" },
-    // },
-    styles: {
-      fontSize: 12,
-      cellPadding: { top: 0, right: 0, bottom: 0, left: 0 },
-      minCellHeight: 4,
-      overflow: "linebreak",
-    },
-  };
-
-  autoTable(pdf, autoTableOptions);
-
-  // console.log(Object.values(transaksi));
-  pdf.line(
-    5,
-    pdf.autoTable.previous.finalY + 2,
-    pdf.internal.pageSize.width - 5,
-    pdf.autoTable.previous.finalY + 2
-  );
-  const totalText = `Total`;
-  const totalValue = `${formatCurrency(transaksi.totalBayar)}`;
-  const diskonText = "Diskon";
-  const diskonTextValue = `${formatCurrency(transaksi.diskon)}`;
-  const totalBayarText = "Total Bayar";
-  const totalBayarValue = `${formatCurrency(transaksi.totalAfterDiskon)}`;
-
-  // pdf.setFont("helvetica");
-  pdf.setFontSize(8);
-  pdf.text(totalText, 5, pdf.autoTable.previous.finalY + 5, {
-    align: "left",
-  });
-  pdf.text(diskonText, 5, pdf.autoTable.previous.finalY + 9, {
-    align: "left",
-  });
-  pdf.text(totalBayarText, 5, pdf.autoTable.previous.finalY + 14, {
-    align: "left",
-  });
-
-  // pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8);
-
-  //RP
-  pdf.text("Rp", pageWidth - 40, pdf.autoTable.previous.finalY + 5, {
-    align: "right",
-    styles: { "text-decoration": "line-through" },
-  });
-  pdf.text("Rp", pageWidth - 40, pdf.autoTable.previous.finalY + 9, {
-    align: "right",
-  });
-  pdf.text("Rp", pageWidth - 40, pdf.autoTable.previous.finalY + 14, {
-    align: "right",
-  });
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8);
-
-  //value
-  pdf.text(totalValue, pageWidth - 25, pdf.autoTable.previous.finalY + 5, {
-    align: "right",
-  });
-
-  if (transaksi.diskon > 0) {
-    pdf.setDrawColor(0);
-    pdf.setLineWidth(0.3);
-    pdf.line(
-      pageWidth - 25,
-      pdf.autoTable.previous.finalY + 4,
-      pageWidth - 45,
-      pdf.autoTable.previous.finalY + 4
-    ); // Draw line through text
+  if (transaksi.namaPaket && transaksi.namaPaket !== null) {
+    pdf.text(transaksi.namaPaket, pdf.internal.pageSize.width / 2, 17, {
+      align: "center",
+    });
+  } else {
+    pdf.text(jenisTiket, pdf.internal.pageSize.width / 2, 17, {
+      align: "center",
+    });
   }
-  pdf.text(diskonTextValue, pageWidth - 25, pdf.autoTable.previous.finalY + 9, {
-    align: "right",
-  });
-  pdf.setFontSize(10);
-  pdf.text(
-    totalBayarValue,
-    pageWidth - 25,
-    pdf.autoTable.previous.finalY + 14,
-    {
-      align: "right",
-    }
-  );
-
-  pdf.line(
-    5,
-    pdf.autoTable.previous.finalY + 16,
-    pdf.internal.pageSize.width - 5,
-    pdf.autoTable.previous.finalY + 16
-  );
-
+  
   pdf.setFontSize(7);
   pdf.text(
     ".:: Terimakasih atas kunjungan anda ::.",
     pdf.internal.pageSize.width / 2,
-    pdf.autoTable.previous.finalY + 35, // Adjust vertical position based on QR code size
+    5 + 35, // Adjust vertical position based on QR code size
     { align: "center" }
   );
   pdf.text(
     "                             ",
     pdf.internal.pageSize.width / 2,
-    pdf.autoTable.previous.finalY + 37, // Adjust vertical position based on QR code size
+    5 + 37, // Adjust vertical position based on QR code size
     { align: "center" }
   );
   pdf.text(
     "                             ",
     pdf.internal.pageSize.width / 2,
-    pdf.autoTable.previous.finalY + 39, // Adjust vertical position based on QR code size
+    5 + 39, // Adjust vertical position based on QR code size
     { align: "center" }
   );
 
   pdf.line(
     15,
-    pdf.autoTable.previous.finalY + 32,
-    pdf.internal.pageSize.width - 15,
-    pdf.autoTable.previous.finalY + 32
+    5 + 32,
+    pdf.internal.pageSize.width - 5,
+    5 + 32
   );
 
   pdf.text(
     "Scan Barcode Di Pintu Masuk",
     pdf.internal.pageSize.width / 2,
-    pdf.autoTable.previous.finalY + 20, // Adjust vertical position based on QR code size
+    5 + 20, // Adjust vertical position based on QR code size
     { align: "center" }
   );
-
-  // Generate barcode
-  // console.log(
-  //   "no_transaksi?.replace(///g,'')",
-  //   no_transaksi?.replace(/\//g, "")
-  // );
 
   const barcodeData = generateBarcode(no_transaksi?.replace(/\//g, ""));
   // Add barcode to PDF
@@ -287,7 +142,7 @@ export const generatePDF = (transaksi, namaPrinter) => {
       const barcodeWidth = 45; // Increased width for better clarity
       const barcodeHeight = 10; // Increased height for better clarity
       const xPosition = (pageWidth - barcodeWidth) / 2;
-      const yPosition = pdf.autoTable.previous.finalY + 21;
+      const yPosition = 5 + 21;
       pdf.addImage(
         barcodeImage,
         "PNG",
@@ -303,7 +158,7 @@ export const generatePDF = (transaksi, namaPrinter) => {
       reader.onload = function () {
         const buffer = this.result;
         downloadPDF(buffer, filePath);
-        printStruk(namaPrinter);
+        print(namaPrinter);
       };
       reader.readAsArrayBuffer(pdfOutput);
     };
