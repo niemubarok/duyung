@@ -12,6 +12,7 @@ export const transaksiStore = defineStore("transaksi", {
     totalTransaksi: ref(0),
     no_transaksi: ref(""),
     qty: ref(1),
+    isCustomQty: ref(false),
     bayar: ref(0),
     diskon: ref(0),
     totalAfterDiskon: ref(0),
@@ -36,8 +37,12 @@ export const transaksiStore = defineStore("transaksi", {
       this.kembalian = this.bayar - this.totalBayar;
       return this.kembalian;
     },
-    incrementQty() {
-      this.qty++;
+    incrementQty(qty) {
+      if (qty) {
+        this.qty = qty;
+      } else {
+        this.qty++;
+      }
     },
     qty(id) {
       if (this.detailTransaksi.length) {
@@ -61,6 +66,8 @@ export const transaksiStore = defineStore("transaksi", {
           wahana.total_bayar = wahana.tarif * wahana.qty; // Assuming each wahana object has tarifPerQty indicating the price per single quantity
         } else {
           this.detailTransaksi.splice(wahanaIndex, 1);
+          this.isCustomQty = false;
+          this.qty = 0;
         }
       }
     },
@@ -69,14 +76,20 @@ export const transaksiStore = defineStore("transaksi", {
       const wahana = this.detailTransaksi.find(
         (item) => item.id_wahana === data.id_wahana
       );
-      console.log("addTransaksi", data);
+      console.log("this.qty", this.qty);
       // console.log("addTransaksi", wahana);
       if (wahana) {
-        wahana.qty++;
-        this.qty = wahana.qty;
-        wahana.total_bayar = data.tarif * wahana.qty;
+        if (!this.isCustomQty) {
+          wahana.qty++;
+          this.qty = wahana.qty;
+          wahana.total_bayar = data.tarif * wahana.qty;
+        } else {
+          wahana.qty = this.qty;
+          wahana.total_bayar = data.tarif * this.qty;
+        }
       } else {
-        const totalHarga = data.tarif * this.qty;
+        const qty = this.isCustomQty ? this.qty : 1;
+        const totalHarga = data.tarif * parseInt(qty);
         const diskon = data.diskon;
         const totalAfterDiskon = parseInt(totalHarga) - parseInt(diskon);
         this.totalBayar = totalHarga;
@@ -85,9 +98,9 @@ export const transaksiStore = defineStore("transaksi", {
 
         this.detailTransaksi.push({
           ...data,
-          qty: 1,
+          qty: qty,
           jenis: data.jenis || "",
-          total_bayar: data.tarif,
+          total_bayar: this.totalBayar,
           deskripsi: data.deskripsi || "",
         });
         // console.log("this.detailTransaksi", this.detailTransaksi);
@@ -107,7 +120,9 @@ export const transaksiStore = defineStore("transaksi", {
       this.diskon = 0;
       this.totalAfterDiskon = 0;
       this.totalBayar = 0;
+      this.qty = 0;
       this.isPaket = false;
+      this.isCustomQty = false;
     },
     async insertIntoDB() {
       const status = "1";
@@ -130,7 +145,7 @@ export const transaksiStore = defineStore("transaksi", {
 
       try {
         if (this.detailTransaksi.length) {
-          const  data= {
+          const data = {
             cara_bayar,
             status,
             petugas,
@@ -139,13 +154,11 @@ export const transaksiStore = defineStore("transaksi", {
             totalAfterDiskon: this.totalAfterDiskon,
             transaksi: this.detailTransaksi,
             total: this.totalBayar,
-          }
+          };
 
-          console.log("data di insertINTODB", data)
+          console.log("data di insertINTODB", data);
 
-
-
-          console.log()
+          console.log();
           const response = await api.post("transaksi/create", {
             data: {
               cara_bayar,

@@ -5,12 +5,18 @@ import { transaksiStore } from "./transaksi-store";
 
 export const wahanaStore = defineStore("wahana", {
   state: () => ({
-    // daftarWahana: [
-    //   {
-    //     id: 1,
-    //     name: "Ticket Masuk",
-    //     tarif: 0,
-    //   },
+    daftarWahana: [
+      {
+        id_wahana: "1",
+        nama: "Tiket Masuk Kolam Renang",
+        deskripsi: "",
+        id_jenis: "1",
+        hari: "weekday",
+        harga_tiket: 35000,
+        diskon: 0,
+        status: true,
+      },
+    ],
     //   {
     //     id: 2,
     //     name: "Rainbow Slide",
@@ -73,7 +79,7 @@ export const wahanaStore = defineStore("wahana", {
     //   },
     // ],
 
-    daftarWahana: ref([]),
+    // daftarWahana: ref([]),
     paket: ref([
       // {
       //   idPaket: 1,

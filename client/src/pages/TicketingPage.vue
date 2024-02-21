@@ -1,57 +1,4 @@
 <template>
-  <!-- <q-page class="fixed-center full-width"> -->
-  <!-- <div
-    class="full-width"
-    style="overflow-y: hidden"
-    :class="{
-      'q-mt-md': $q.platform.is.mobile,
-      '': $q.platform.is.desktop,
-    }"
-  >
-    <div class="full-width">
-      <q-card class="glass-dark flex items-center justify-between">
-        <div
-          class="text-subtitle2 text-weight-bolder text-white text-start q-px-md"
-        >
-          <q-btn flat icon="dashboard" @click="$router.push('/dashboard')" />
-          Depok Fantasy Land
-        </div>
-        <div class="text-body text-weight-bolder text-white text-start q-px-md">
-          {{ ls.get("petugas")?.nama }}
-          <Clock />
-        </div>
-        <div>
-          <q-btn
-            flat
-            color="white"
-            icon="logout"
-            label="Log Out"
-            @click="onLogOut"
-          />
-        </div>
-      </q-card>
-    </div> -->
-  <!-- 'q-mt-sm': $q.platform.desktop, -->
-  <!-- <div
-      class="text-subtitle1 text-weight-bolder text-white text-center glass-dark q-mt-xs"
-    >
-      DEPOK FANTASY LAND TICKETING SYSTEM
-    </div> -->
-  <!-- <q-header class="glass-dark q-mt-lg">
-      <q-card class="col-md-3 glass-light q-ma-xs">
-        <div class="text-subtitle1 q-ma-xs q-ml-md">Detail Pesanan Tiket</div>
-        <q-separator inset dark />
-        <q-card-section>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit
-        </q-card-section>
-        <q-card-section>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit
-        </q-card-section>
-        <q-card-section>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit
-        </q-card-section>
-      </q-card>
-    </q-header> -->
   <div class="flex row full-width text-center q-mt-md">
     <DetailTransaksi v-if="$q.screen.gt.sm" />
     <q-card
@@ -59,17 +6,6 @@
       class="col q-ma-xs q-pa-sm glass-light"
       style="height: 89vh; border-top: #5d4037 3px solid"
     >
-      <!-- <q-btn
-        color="primary"
-        icon="check"
-        label="OK"
-        @click="$router.push('/print')"
-      /> -->
-      <!-- <div class="text-weight-bolder text-body text-white q-mb-md">
-          Daftar Wahana
-        </div>
-        <q-separator spaced inset dark /> -->
-
       <DetailTransaksi v-if="$q.screen.lt.sm" />
       <div
         class="flex row q-gutter-md flex-center q-mt-md"
@@ -90,7 +26,7 @@
           <!-- <TicketCard /> -->
         </div>
       </div>
-      <div class="full-width flex row flex-center q-mt-md gap-sm">
+      <!-- <div class="full-width flex row flex-center q-mt-md gap-sm">
         <span class="text-dark"> Paket : </span>
         <q-btn
           push
@@ -101,7 +37,6 @@
         />
 
         <template v-for="paket in daftarPaket" :key="paket.idPaket">
-          <!-- :label="paket.namaPaket + ' - ' + paket.hargaPaket" -->
           <q-btn
             push
             color="brown-9"
@@ -109,25 +44,13 @@
             @click="pilihPaket(paket)"
           >
             {{ paket.namaPaket }}
-            <!-- <span class="text-body2 text-weight-thin">
-                ({{ (paket.hargaPaket) }})</span -->
           </q-btn>
         </template>
-        <!-- <q-btn
-            push
-            color="brown-9"
-            label="tes print"
-            class="q-mx-xs"
-            @click="testPrint"
-          /> -->
-      </div>
+      </div> -->
     </q-card>
   </div>
 
-  <!-- </q-page> -->
-  <!-- </div> -->
-
-  <q-dialog v-model="qtyDialog">
+  <!-- <q-dialog v-model="qtyDialog">
     <q-card class="glass-light q-pa-lg relative">
       <q-card-section class="row items-center">
         <q-input
@@ -137,7 +60,6 @@
           type="number"
           label="Masukkan Jumlah tiket"
         />
-        <!-- @keydown.enter.prevent="selectAllWahana" -->
       </q-card-section>
       <q-card-actions align="right">
         <div>
@@ -150,7 +72,6 @@
             v-close-popup
           />
         </div>
-        <!-- label="ENTER" -->
         <q-btn
           push
           icon="check"
@@ -160,7 +81,7 @@
         />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </q-dialog> -->
 </template>
 
 <script setup>
@@ -184,7 +105,7 @@ const qty = ref();
 const daftarWahana = computed(() => {
   const today = new Date();
   const dayOfWeek = today.getDay();
-  console.log("dayOfWeek", dayOfWeek)
+  // console.log("dayOfWeek", dayOfWeek);
   const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 4; // Monday to Thursday
   const isWeekendOrHoliday =
     dayOfWeek === 0 ||
@@ -194,14 +115,14 @@ const daftarWahana = computed(() => {
 
   return wahanaStore()
     .daftarWahana.filter((wahana) => {
-      console.log(isWeekendOrHoliday)
+      console.log(isWeekendOrHoliday);
       if (isWeekendOrHoliday) {
         return (
           (wahana.status === true &&
             wahana.hari?.toLowerCase() === "weekend") ||
           (wahana.status === true && wahana.hari?.toLowerCase() === "all day")
         );
-      } else  {
+      } else {
         return (
           (wahana.status === true &&
             wahana.hari?.toLowerCase() === "weekday") ||
@@ -213,7 +134,6 @@ const daftarWahana = computed(() => {
 });
 
 function isNationalHoliday(date) {
-  
   const nationalHolidays = [
     // Tahun 2024
     "2024-01-01", // New Year's Day
@@ -249,7 +169,7 @@ function isNationalHoliday(date) {
     "2025-09-05", // Prophet Muhammad's Birthday
     "2025-12-25", // Christmas Day
   ];
-   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
   const dateStr = date.toISOString().split("T")[0];
   return nationalHolidays.includes(dateStr);
 }
@@ -350,10 +270,8 @@ const pilihPaket = async (paket) => {
 //   // transaksiStore().addTransaksi();
 // };
 
-onBeforeMount(() => {});
-
 onMounted(async () => {
-  await wahanaStore().getPaketFromDB();
+  // await wahanaStore().getPaketFromDB();
   if (!ls.get("petugas")) {
     const _loginDialog = $q.dialog({
       component: LoginDialog,
@@ -368,7 +286,7 @@ onMounted(async () => {
   // console.log(await window.electron.getHIDDevices());
   // console.log(await window.electron.readDataFromHID(27027, 45090));
 
-  await wahanaStore().getWahanaFromDB();
+  // await wahanaStore().getWahanaFromDB();
   const handleKeyDown = async (event) => {
     if (event.key === "Enter" && !qtyDialog.value) {
       // await onSaveSettings();

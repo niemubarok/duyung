@@ -1,27 +1,27 @@
 <template>
   <q-card
     @contextmenu.prevent="onRightClick"
-    @click="onClickWahana"
-    class="ticket flex column card-gradient hover rounded-10 text-center flex-center q-py-sm cursor-pointer non-selectable"
+    class="relative ticket flex column card-gradient hover rounded-10 text-center flex-center q-py-sm cursor-pointer non-selectable"
     :style="
       $q.screen.lt.sm
         ? 'width: 80vw;margin-top: 10px'
         : props.length > 9
-        ? 'width: 14vw;height: 15%; margin-top:10px'
-        : 'width: 14vw;height: 20%; margin-top:10px;height: 150px;'
+        ? 'width: 20vw;height: 15%; margin-top:10px'
+        : 'width: 20vw;height: 20%; margin-top:10px;height: 150px;'
     "
   >
-    <div>
-      <q-badge
-        floating
+    <div @click="onClickQty">
+      <q-btn
+        push
         color="yellow-5"
         text-color="black"
         :label="qty || 0"
-        class="q-pa-sm text-weight-bolder"
+        class="q-pa-sm text-weight-bolder absolute-top-right q-mr-xs q-mt-xs"
+        style="font-size: medium"
+        :offset="[40, 50]"
       />
     </div>
-    <!-- style="width: 400px; " -->
-    <q-card-section>
+    <q-card-section @click="onClickWahana">
       <div class="text-subtitle1 text-weight-bolder">
         {{ props.nama }}
       </div>
@@ -39,6 +39,58 @@
       </div>
     </q-card-section>
   </q-card>
+
+  <q-dialog v-model="qtyDialog" @hide="onHideQtyDialog">
+    <q-card class="glass-light q-pa-lg relative">
+      <div>
+        <q-chip class="text-weight-bolder"> Masukkan Jumlah Tiket </q-chip>
+      </div>
+      <q-card-section class="row items-center">
+        <q-input
+          standout="bg-brown-9"
+          autofocus
+          v-model="qtyModel"
+          color="yellow"
+          input-class="text-weight-bolder text-h4"
+          type="number"
+        />
+        <!-- label="Masukkan Jumlah tiket" -->
+      </q-card-section>
+      <q-card-section>
+        <div class="row q-col-gutter-sm flex-wrap">
+          <template v-for="n in 100" :key="n">
+            <q-btn
+              push
+              v-if="n % 5 === 0"
+              class="q-ma-sm bg-white"
+              style="width: 50px; height: 50px"
+              :label="n.toString()"
+              @click="qtyModel = n"
+            />
+          </template>
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <div>
+          <q-avatar
+            size="25px"
+            class="cursor-pointer z-top absolute-top-right q-ma-sm"
+            text-color="grey-9"
+            color="grey-5"
+            icon="close"
+            v-close-popup
+          />
+        </div>
+        <q-btn
+          push
+          icon="check"
+          color="brown-9"
+          v-close-popup
+          @click="onClickWahana"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -57,6 +109,18 @@ const props = defineProps({
   jenis: String,
   hari: String,
 });
+
+const qtyDialog = ref(false);
+const qtyModel = ref();
+
+const onClickQty = () => {
+  transaksiStore().isCustomQty = true;
+  qtyDialog.value = true;
+};
+
+const onHideQtyDialog = () => {
+  transaksiStore().isCustomQty = false;
+};
 
 const qty = computed(() => {
   return transaksiStore().detailTransaksi.length
@@ -77,7 +141,7 @@ const onClickWahana = () => {
     hari: props.hari,
   });
 
-  // console.log("data di wahanacard", data.value);
+  transaksiStore().qty = qtyModel.value;
   transaksiStore().addTransaksi(data.value);
 
   transaksiStore().detailTransaksi;
