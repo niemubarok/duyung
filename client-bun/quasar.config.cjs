@@ -1,16 +1,6 @@
-/* eslint-env node */
+import { configure } from "quasar/wrappers";
 
-/*
- * This file runs in a Node context (it's NOT transpiled by Babel), so use only
- * the ES6 features that are supported by your Node version. https://node.green/
- */
-
-// Configuration for your app
-// https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
-
-const { configure } = require("quasar/wrappers");
-
-module.exports = configure(function (/* ctx */) {
+export default configure((ctx) => {
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
@@ -56,6 +46,7 @@ module.exports = configure(function (/* ctx */) {
       env: {
         WA_GATEWAY: "http://127.0.0.1:8000",
         NAMA_PERUSAHAAN: "PUTRI DUYUNG",
+        isDemo: true,
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
@@ -99,16 +90,11 @@ module.exports = configure(function (/* ctx */) {
     animations: [],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles
-    // sourceFiles: {
-    //   rootComponent: 'src/App.vue',
-    //   router: 'src/router/index',
-    //   store: 'src/store/index',
-    //   registerServiceWorker: 'src-pwa/register-service-worker',
-    //   serviceWorker: 'src-pwa/custom-service-worker',
-    //   pwaManifestFile: 'src-pwa/manifest.json',
-    //   electronMain: 'src-electron/electron-main',
-    //   electronPreload: 'src-electron/electron-preload'
-    // },
+    sourceFiles: {
+      pwaRegisterServiceWorker: "src-pwa/register-service-worker",
+      pwaServiceWorker: "src-pwa/custom-service-worker",
+      pwaManifestFile: "src-pwa/manifest.json",
+    },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-ssr/configuring-ssr
     ssr: {
@@ -118,7 +104,7 @@ module.exports = configure(function (/* ctx */) {
       // extendSSRWebserverConf (esbuildConf) {},
       // extendPackageJson (json) {},
 
-      pwa: false,
+      pwa: true,
 
       // manualStoreHydration: true,
       // manualPostHydrationTrigger: true,
@@ -133,11 +119,20 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: "generateSW", // or 'injectManifest'
-      injectPwaMetaTags: true,
+      workboxMode: "GenerateSW",
+      // | "InjectManifest",
+
+      injectPwaMetaTags: false,
+      // | ((injectParam: InjectPwaMetaTagsParams) => string),
+      // see below for the InjectPwaMetaTagsParams interface
+
       swFilename: "sw.js",
       manifestFilename: "manifest.json",
       useCredentialsForManifestTag: false,
+      extendGenerateSWOptions(cfg) {
+        cfg.skipWaiting = false;
+        cfg.clientsClaim = false;
+      },
       // useFilenameHashes: true,
       // extendGenerateSWOptions (cfg) {}
       // extendInjectManifestOptions (cfg) {},
@@ -161,6 +156,13 @@ module.exports = configure(function (/* ctx */) {
       // extendElectronPreloadConf (esbuildConf)
 
       // specify the debugging port to use for the Electron app when running in development mode
+
+      // Electron preload scripts (if any) from /src-electron, WITHOUT file extension
+
+      //  extendElectronPreloadConf?: (config: EsbuildConfiguration) => void;
+
+      preloadScripts: ["electron-preload"],
+
       inspectPort: 5858,
 
       bundler: "builder", // 'packager' or 'builder'
@@ -175,21 +177,21 @@ module.exports = configure(function (/* ctx */) {
         // protocol: 'myapp://path',
         // Windows only
         win32metadata: {
-          CompanyName: "DLAND",
-          FileDescription: "Aplikasi tiket Dland",
+          CompanyName: "Putri Duyung",
+          FileDescription: "Putri Duyung App",
           // InternalName: "string",
           // OriginalFilename: "string",
           requestedExecutionLevel: "requireAdministrator",
-          ProductName: "dland",
+          ProductName: "duyung",
         },
       },
 
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "com.dland.app",
+        appId: "com.duyung.app",
         copyright: `Copyright © ${new Date().getFullYear()} TABAROKTA. All Rights Reserved.`,
-        productName: "Dland",
+        productName: "Duyung",
         linux: {
           target: [
             {
@@ -202,7 +204,7 @@ module.exports = configure(function (/* ctx */) {
         win: {
           target: [
             {
-              target: "[nsis-web,nsis]",
+              target: "nsis",
               arch: ["x64"], // You can add more architectures here if needed
             },
           ],

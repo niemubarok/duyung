@@ -25,7 +25,7 @@
         <div class="text-h6 text-center">
           <div class="row items-center flex-center">
             <q-icon name="qr_code_scanner" class="q-mr-sm" />
-            SCAN QRCODE
+            SCAN Barcode
           </div>
         </div>
         <q-separator />
@@ -52,13 +52,29 @@
               : 'width:100%;height:40vh'
           "
         >
+          <!-- v-if="Object.keys(selectedWahana).length !== 0" -->
           <qrcode-stream
             ref="qrcodeStream"
-            v-if="Object.keys(selectedWahana).length !== 0"
             class="rounded-10"
             @detect="onDetect"
             @error="onError"
             :paused="cameraPaused"
+            :formats="[
+              'qr_code',
+              'aztec',
+              'code_128',
+              'code_39',
+              'code_93',
+              'codabar',
+              'databar',
+              'databar_expanded',
+              'data_matrix',
+              'dx_film_edge',
+              'ean_13',
+              'ean_8',
+              'itf',
+              'maxi_code',
+            ]"
           ></qrcode-stream>
           <!-- @camera-on="onReady" -->
 
@@ -75,7 +91,7 @@
             </q-skeleton>
           </div> -->
 
-          <div v-else>
+          <!-- <div v-else>
             <q-skeleton
               :style="
                 $q.platform.is.desktop
@@ -86,7 +102,7 @@
             >
               Silahkan Pilih Wahana terlebih dahulu
             </q-skeleton>
-          </div>
+          </div> -->
         </div>
 
         <div class="flex row justify-end">
@@ -274,6 +290,7 @@ const playSuccessNotification = () => {
 const onDetect = (payload) => {
   cameraPaused.value = true;
 
+  console.log(payload[0]);
   if (Object.keys(selectedWahana.value).length !== 0) {
     result.value = payload[0].rawValue;
     playSuccessNotification();

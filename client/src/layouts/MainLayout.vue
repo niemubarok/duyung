@@ -23,13 +23,13 @@
         >
         </q-btn>
 
-        <!-- <q-toolbar-title>
+        <q-toolbar-title>
           <q-img
-            src="~/assets/logo-dland.png"
+            src="~/assets/logo-putri-duyung-depok.jpg"
             :width="$q.platform.is.desktop ? '200px' : '100px'"
             spinner-color="primary"
             spinner-size="20px"
-        /></q-toolbar-title> -->
+        /></q-toolbar-title>
 
         <div class="text-body text-weight-bolder text-white text-start q-px-md">
           {{ ls.get("petugas")?.nama }}
@@ -113,16 +113,15 @@ import Clock from "src/components/Clock.vue";
 
 const $q = useQuasar();
 const handleKeyDown = (event) => {
-      //event.preventDefault();
+  //event.preventDefault();
 
-   if (event.key === "Enter" || event.key === "enter") {
+  if (event.key === "Enter" || event.key === "enter") {
     event.preventDefault();
-    return
+    return;
   }
 };
 
-const isLoginDialog = computed(()=>userStore().isLoginDialog)
-
+const isLoginDialog = computed(() => userStore().isLoginDialog);
 
 onMounted(() => {
   //console.log("isLoginDialog", isLoginDialog)
@@ -185,6 +184,12 @@ const essentialLinks = [
     caption: "",
     icon: "dataset",
     link: "/paket",
+  },
+  {
+    title: "Barcode Scanner",
+    caption: "",
+    icon: "qr_code_scanner",
+    link: "/barcode",
   },
 ];
 const leftDrawerOpen = ref(false);
